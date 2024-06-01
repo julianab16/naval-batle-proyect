@@ -30,6 +30,7 @@ public class WelcomeController {
                 "• Agua: Disparo en una casilla vacía. Se marca con una X y pasa el turno al oponente. "+
                 "\n• Tocado: Disparo en una parte de un barco mayor de 1 casilla. Se marca la parte tocada y el jugador vuelve a disparar. "+
                 "\n• Hundido: Disparo en una fragata o un barco con todas sus partes tocadas. Se marca el barco completo y el jugador vuelve a disparar. Gana quien hunda toda la flota enemiga.";;
-        new AlertBox().showMessage(title, header, content);
+
+                new AlertBox().showMessage(title, header, content);
     }
 }

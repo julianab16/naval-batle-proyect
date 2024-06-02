@@ -7,6 +7,8 @@ public class Table {
         this.table = new String[11][11];
         for (int i = 0; i < 11; i++) {
             for (int j = 0; j < 11; j++) {
+                table[0][j] = String.valueOf(j);
+                table[i][0] = String.valueOf(i);
                 this.table[i][j] = ".";
             }
         }

@@ -1,5 +1,6 @@
 package com.example.navalbattlefinal.controller;
 
+import com.example.navalbattlefinal.model.Ship;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.input.MouseEvent;
@@ -14,14 +15,21 @@ public class GameController {
     GridPane gridPaneTwo = new GridPane();
 
     @FXML
+    private HBox hboxPanes;
+    @FXML
     private AnchorPane anchorpaneOne;
     @FXML
     private AnchorPane anchorpaneTwo;
+
+    Ship ship = new Ship();
+
+
 
     @FXML
     public void inicialize() {
         int rows = 11;
         int columns = 11;
+
 
         BorderStroke borderStroke = new BorderStroke(
                 Color.BLACK, // Color del borde
@@ -63,6 +71,20 @@ public class GameController {
             }
         }
         anchorpaneTwo.getChildren().add(gridPaneTwo);
+
+        Pane appearPane= ship.getAircraftCarrier();
+
+        hboxPanes.getChildren().add(appearPane);
+    }
+
+
+
+
+
+    private void MouseDragged(MouseEvent event){
+
+
+
     }
 
     public GridPane getGridPane() {

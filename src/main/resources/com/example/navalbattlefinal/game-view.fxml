@@ -6,9 +6,10 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="676.0" prefWidth="1063.0" style="-fx-background-color: #2980B9;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.navalbattlefinal.controller.GameController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="660.0" prefWidth="1063.0" style="-fx-background-color: #2980B9;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.navalbattlefinal.controller.GameController">
    <children>
       <Accordion layoutX="249.0" layoutY="209.0" />
       <Label alignment="CENTER" contentDisplay="CENTER" layoutX="183.0" layoutY="51.0" prefHeight="44.0" prefWidth="241.0" text="Jugador" textFill="WHITE">
@@ -21,7 +22,7 @@
             <Font name="System Bold" size="36.0" />
          </font>
       </Label>
-      <Button layoutX="242.0" layoutY="583.0" mnemonicParsing="false" onAction="#buttonPlayGame" prefHeight="29.0" prefWidth="122.0" style="-fx-background-color: #34495E;" text="START" textFill="#eeeeee">
+      <Button layoutX="695.0" layoutY="576.0" mnemonicParsing="false" onAction="#buttonPlayGame" prefHeight="29.0" prefWidth="122.0" style="-fx-background-color: #34495E;" text="START" textFill="#eeeeee">
          <font>
             <Font name="System Bold" size="20.0" />
          </font></Button>
@@ -41,5 +42,6 @@
                </image>
             </ImageView>
          </children></AnchorPane>
+      <HBox fx:id="hboxsPanes" layoutX="94.0" layoutY="538.0" prefHeight="108.0" prefWidth="420.0" />
    </children>
 </AnchorPane>

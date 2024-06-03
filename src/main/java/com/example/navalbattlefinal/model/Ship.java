@@ -1,15 +1,21 @@
 package com.example.navalbattlefinal.model;
+import java.util.List;
+
 
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
 public class Ship {
+    //public final Integer label;
+
     Pane paneAircraftCarrier;
     Polygon aircraftCarrier;
 
 
-    public Ship(){
+    public Ship(Integer label){
+        //this.label = label;
+
         paneAircraftCarrier= new Pane();
         paneAircraftCarrier.prefWidth(17);
         paneAircraftCarrier.prefHeight(17);
@@ -25,6 +31,7 @@ public class Ship {
     public Pane getAircraftCarrier(){
         return paneAircraftCarrier;
     }
+
 
 
 

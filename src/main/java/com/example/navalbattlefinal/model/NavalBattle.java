@@ -2,9 +2,9 @@ package com.example.navalbattlefinal.model;
 
 public class NavalBattle {
     public enum EstadoCasilla {
-        VACIA('*'),
-        OCUPADA('-'),
-        ATACADA('X');
+        VACIA('.'),
+        OCUPADA('X'),
+        ATACADA('-');
 
         private final char simbolo;
 

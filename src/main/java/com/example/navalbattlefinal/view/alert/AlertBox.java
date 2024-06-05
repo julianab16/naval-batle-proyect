@@ -15,5 +15,12 @@ public class AlertBox {
         alertStage.setHeight(1000); // Ajustar la altura deseada
         alert.showAndWait();
     }
+    public void showMessageG(String title, String header, String content){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
 
 }

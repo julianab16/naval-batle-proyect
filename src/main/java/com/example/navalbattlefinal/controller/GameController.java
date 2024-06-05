@@ -361,6 +361,9 @@ public class GameController {
             System.err.println("Error handleMouseMoved: " + e.getMessage());
         }
     }
+
+    boolean playerTurn = true; // Indica si es el turno del jugador
+    boolean gameFinished = false; // Indica si el juego ha terminado
     @FXML
     void buttonPlayGame(ActionEvent event) {
         try {
@@ -375,55 +378,93 @@ public class GameController {
             placeShips(tableTwo.getTable());
             tableTwo.printPlayerBoard();
             gridPaneTwo.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                                             @Override
-                                             public void handle(MouseEvent event) {
-                                                 try {
-                                                     double x = event.getX();
-                                                     double y = event.getY();
+                @Override
+                public void handle(MouseEvent event) {
+                    try {
+                        if (!gameFinished) {
+                            double x = event.getX();
+                            double y = event.getY();
 
-                                                     // Obtener el tamaño de las celdas
-                                                     double cellWidth = gridPaneTwo.getWidth() / columns;
-                                                     double cellHeight = gridPaneTwo.getHeight() / rows;
+                            // Obtener el tamaño de las celdas
+                            double cellWidth = gridPaneTwo.getWidth() / columns;
+                            double cellHeight = gridPaneTwo.getHeight() / rows;
 
-                                                     // Calcular la columna y la fila basándose en las coordenadas del evento
-                                                     int clickedCol = (int) (x / cellWidth);
-                                                     int clickedRow = (int) (y / cellHeight);
+                            // Calcular la columna y la fila basándose en las coordenadas del evento
+                            int clickedCol = (int) (x / cellWidth);
+                            int clickedRow = (int) (y / cellHeight);
 
-                                                     System.out.println("Clic en fila " + clickedRow + ", columna " + clickedCol);
+                            System.out.println("Clic en fila " + clickedRow + ", columna " + clickedCol);
 
-                                                     if (tableTwo.getTable()[clickedRow][clickedCol].equals("X")) {
-                                                         System.out.println("¡Impacto! El jugador golpeó un barco enemigo en la posición " + clickedRow + ", " + clickedCol);
-                                                         // Aquí puedes realizar acciones adicionales, como marcar el barco como golpeado en tu matriz de enemigos
-                                                     } else {
-                                                         System.out.println("El jugador no golpeó ningún barco enemigo en la posición " + clickedRow + ", " + clickedCol);
-                                                     }
-
-                                                     RandomShooter machineShooter = new RandomShooter(10, 10); // Crear instancia de RandomShooter para la máquina
-                                                     int[] machineShotPosition = machineShooter.shoot(); // Obtener la próxima posición de disparo de la máquina
-                                                     if (machineShotPosition != null) {
-                                                         int machineRow = machineShotPosition[0];
-                                                         int machineCol = machineShotPosition[1];
-                                                         // Verificar si la posición generada es válida
-                                                         if (tableOne.getTable()[machineRow][machineCol].equals("X")) {
-                                                             System.out.println("¡Impacto! La máquina golpeó un barco enemigo en la posición " + machineRow + ", " + machineCol);
-                                                             // Aquí puedes realizar acciones adicionales, como marcar el barco como golpeado en tu matriz de enemigos
-                                                         } else {
-                                                             System.out.println("La máquina no golpeó ningún barco enemigo en la posición " + machineRow + ", " + machineCol);
-                                                         }
-                                                     } else {
-                                                         System.out.println("La máquina no puede disparar más, todas las posiciones han sido utilizadas.");
-                                                     }
-                                                 } catch (Exception e) {
-                                                     System.err.println("Error ButtonPlayGame: " + e.getMessage());
-                                                 }
-                                             }
+                            if (playerTurn) {
+                                // Turno del jugador
+                                handlePlayerTurn(clickedRow, clickedCol);
+                            } else {
+                                // Turno de la máquina
+                                handleMachineTurn();
+                            }
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Error al manejar el clic del mouse: " + e.getMessage());
+                    }
+                }
             });
-
-            ship.setVisible(false);
-        }catch (Exception e) {
-            System.err.println("Error ButtonPlayGame: " + e.getMessage());
-            }
+        } catch (Exception e) {
+            System.err.println("Error al iniciar el juego: " + e.getMessage());
+        }
     }
+    }
+
+        // Método para manejar el turno del jugador
+        private void handlePlayerTurn(int clickedRow, int clickedCol) {
+            if (tableTwo.getTable()[clickedRow][clickedCol].equals("X")) {
+                System.out.println("¡Impacto! El jugador golpeó un barco enemigo en la posición " + clickedRow + ", " + clickedCol);
+                // Aquí puedes realizar acciones adicionales, como marcar el barco como golpeado en tu matriz de enemigos
+            } else {
+                System.out.println("El jugador no golpeó ningún barco enemigo en la posición " + clickedRow + ", " + clickedCol);
+            }
+
+            // Verificar si el jugador ha ganado
+            if (allPlayersShipsSunk(tableTwo.getTable())) {
+                System.out.println("¡Felicidades! Has ganado el juego.");
+                gameFinished = true;
+            }
+
+            playerTurn = false; // Pasar el turno a la máquina
+        }
+        private void handleMachineTurn() {
+            RandomShooter machineShooter = new RandomShooter(10, 10); // Crear instancia de RandomShooter para la máquina
+            int[] machineShotPosition = machineShooter.shoot(); // Obtener la próxima posición de disparo de la máquina
+
+            if (machineShotPosition != null) {
+                int machineRow = machineShotPosition[0];
+                int machineCol = machineShotPosition[1];
+
+                if (tableOne.getTable()[machineRow][machineCol].equals("X")) {
+                    System.out.println("¡Impacto! La máquina golpeó un barco enemigo en la posición " + machineRow + ", " + machineCol);
+                    // Aquí puedes realizar acciones adicionales, como marcar el barco como golpeado en tu matriz de enemigos
+                } else {
+                    System.out.println("La máquina no golpeó ningún barco enemigo en la posición " + machineRow + ", " + machineCol);
+                }
+
+                // Verificar si la máquina ha ganado
+                if (allPlayersShipsSunk(tableOne.getTable())) {
+                    System.out.println("¡La máquina ha ganado el juego!");
+                    gameFinished = true;
+                }
+
+                playerTurn = true; // Pasar el turno al jugador
+            }
+        }
+        public boolean allPlayersShipsSunk(String[][] enemyGrid) {
+            for (int i = 1; i < enemyGrid.length; i++) {
+                for (int j = 1; j < enemyGrid[i].length; j++) {
+                if (enemyGrid[i][j].equals("X")) {
+                    return false; // Si se encuentra un barco sin ser golpeado, devuelve falso
+            }
+        }
+    }
+    return true; // Si no se encontraron barcos sin ser golpeados, devuelve verdadero
+}
 
     public boolean checkCell (int row, int cols, String[][] table){
         System.out.println();
@@ -494,4 +535,7 @@ public class GameController {
         }
     }
 
+}
+
+public void main() {
 }

@@ -1,6 +1,7 @@
 package com.example.navalbattlefinal.controller;
 
 
+import com.example.navalbattlefinal.model.AircraftCarrier;
 import com.example.navalbattlefinal.model.Ship;
 
 import com.example.navalbattlefinal.view.Table;
@@ -16,13 +17,12 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import java.util.Random;
 
 public class GameController {
 
-    @FXML
-    private HBox hboxPanes;
     @FXML
     private AnchorPane anchorpaneOne;
     @FXML
@@ -37,6 +37,7 @@ public class GameController {
     GridPane gridPane = new GridPane();
     GridPane gridPaneTwo = new GridPane();
     private static final int[] SHIP_SIZES = {4, 3, 3, 2, 2, 2, 1, 1, 1};
+    //private Ship currentShip;
     private static final String[] list = new String[]{"portaAvion", "submarino", "destructor", "fragata"};
     private static final Random random = new Random();
     private static final int rows = 11;
@@ -47,14 +48,17 @@ public class GameController {
     private boolean isHorizontal = true; // Estado inicial del barco
     private int currentShipIndex = 0; // Índice del barco actual
 
-    private Rectangle ship;
+    private Pane shipPane;
+    private Polygon shipAircraftCarrier;
+    //private Rectangle ship;
 
     //Ship ship = new Ship();
 
 
-
     @FXML
     public void inicialize() {
+        AircraftCarrier aircraftCarrier = new AircraftCarrier();
+       // Polygon aircraftCarrierPolygon = aircraftCarrier.createAircraftCarrierPolygon();
 
         gridPaneTwo.setVisible(false);
         anchorpaneTwo.setVisible(false);
@@ -138,16 +142,25 @@ public class GameController {
             }
 
             anchorpaneTwo.getChildren().add(gridPaneTwo);
+            /*
             //putBoatsEnemy();
             ship = new Rectangle(SHIP_SIZES[currentShipIndex] * CELL_SIZE, CELL_SIZE);
-            ship.setFill(Color.GRAY);
+            ship.setFill(Color.GRAY);*/
+        shipPane = new Pane();
+        shipPane.setPrefSize(SHIP_SIZES[currentShipIndex] * CELL_SIZE, CELL_SIZE);
+        shipPane.setStyle("-fx-border-color: black");
+        shipAircraftCarrier = aircraftCarrier.getAircraftCarrier();
 
-            // Añadir un EventHandler para cambiar la orientación al hacer clic
-            ship.setOnMouseClicked(this::handleShipClick);
+        //ship.setFill(Color.GRAY);
+        shipPane.getChildren().add(shipAircraftCarrier);
+
+
+        // Añadir un EventHandler para cambiar la orientación al hacer clic
+            shipPane.setOnMouseClicked(this::handleShipClick);
             gridPane.setOnMouseMoved(this::handleMouseMoved);
 
             // Añadir el barco al grid
-            gridPane.add(ship, 1, 1, SHIP_SIZES[currentShipIndex], 1);
+            gridPane.add(shipPane,1,1,SHIP_SIZES[currentShipIndex], 1);
 
             Scene scene = gridPane.getScene();
             if (scene != null) {
@@ -198,16 +211,16 @@ public class GameController {
     private void updateShipSize() {
         int shipSize = SHIP_SIZES[currentShipIndex];
         if (isHorizontal) {
-            ship.setWidth(shipSize * CELL_SIZE);
-            ship.setHeight(CELL_SIZE);
+            shipAircraftCarrier.setId(String.valueOf(shipSize * CELL_SIZE));
+            shipAircraftCarrier.setId(String.valueOf(CELL_SIZE));
         } else {
-            ship.setWidth(CELL_SIZE);
-            ship.setHeight(shipSize * CELL_SIZE);
+            shipAircraftCarrier.setId(String.valueOf(CELL_SIZE));
+            shipAircraftCarrier.setId(String.valueOf(shipSize * CELL_SIZE));
         }
 
         // Reposicionar el barco para que quede en su lugar actual
-        GridPane.setColumnSpan(ship, isHorizontal ? shipSize : 1);
-        GridPane.setRowSpan(ship, isHorizontal ? 1 : shipSize);
+        GridPane.setColumnSpan(shipAircraftCarrier, isHorizontal ? shipSize : 1);
+        GridPane.setRowSpan(shipAircraftCarrier, isHorizontal ? 1 : shipSize);
     }
 
     private void rotateShip() {
@@ -215,28 +228,28 @@ public class GameController {
         if (isHorizontal) {
                 if (currentRow + shipSize <= 11) {
                     // Cambiar a vertical
-                    ship.setWidth(CELL_SIZE);
-                    ship.setHeight(shipSize * CELL_SIZE);
+                    shipAircraftCarrier.setId(String.valueOf(CELL_SIZE));
+                    shipAircraftCarrier.setId(String.valueOf(shipSize * CELL_SIZE));
                     isHorizontal = false;
                 }
             } else {
                 if (currentCol + shipSize <= 11) {
                     // Cambiar a horizontal
-                    ship.setWidth(shipSize * CELL_SIZE);
-                    ship.setHeight(CELL_SIZE);
+                    shipAircraftCarrier.setId(String.valueOf(CELL_SIZE));
+                    shipAircraftCarrier.setId(String.valueOf(shipSize * CELL_SIZE));
                     isHorizontal = true;
                 }
         }
         // Reposicionar el barco para que quede en su lugar actual
-        GridPane.setColumnIndex(ship, currentCol);
-        GridPane.setRowIndex(ship, currentRow);
-        GridPane.setColumnSpan(ship, isHorizontal ? shipSize : 1);
-        GridPane.setRowSpan(ship, isHorizontal ? 1 : shipSize);
+        GridPane.setColumnIndex(shipPane, currentCol);
+        GridPane.setRowIndex(shipPane, currentRow);
+        GridPane.setColumnSpan(shipPane, isHorizontal ? shipSize : 1);
+        GridPane.setRowSpan(shipPane, isHorizontal ? 1 : shipSize);
     }
 
     private void handleShipClick(MouseEvent event) {
-        Integer shipCol = GridPane.getColumnIndex(ship);
-        Integer shipRow = GridPane.getRowIndex(ship);
+        Integer shipCol = GridPane.getColumnIndex(shipPane);
+        Integer shipRow = GridPane.getRowIndex(shipPane);
 
         int shipSize = SHIP_SIZES[currentShipIndex];
         boolean canPlace = true;
@@ -256,16 +269,16 @@ public class GameController {
                     updateShipSize();
                 } else {
                     System.out.println("All ships placed.");
-                    gridPane.getChildren().remove(ship);
+                    gridPane.getChildren().remove(shipPane);
                 }
             } else {
                 System.out.println("Cannot place ship here.");
             }
 
-            GridPane.setColumnIndex(ship, currentCol);
-            GridPane.setRowIndex(ship, currentRow);
-            GridPane.setColumnSpan(ship, isHorizontal ? shipSize : 1);
-            GridPane.setRowSpan(ship, isHorizontal ? 1 : shipSize);
+            GridPane.setColumnIndex(shipPane, currentCol);
+            GridPane.setRowIndex(shipPane, currentRow);
+            GridPane.setColumnSpan(shipPane, isHorizontal ? shipSize : 1);
+            GridPane.setRowSpan(shipPane, isHorizontal ? 1 : shipSize);
 
         /*for (int i = 0; i < colSpan; i++) {
             for (int j = 0; j < rowSpan; j++) {
@@ -285,8 +298,8 @@ public class GameController {
                         updateShipSize();
                     } else {
                         System.out.println("All ships placed.");
-                    }
-         */
+                    }*/
+
     }
 
     private void handleMouseMoved(MouseEvent event) {
@@ -299,15 +312,15 @@ public class GameController {
             if (col + shipSize <= 11 && row < 11 && row > 0 && col > 0 ) {
                 currentCol = col;
                 currentRow = row;
-                GridPane.setColumnIndex(ship, col);
-                GridPane.setRowIndex(ship, row);
+                GridPane.setColumnIndex(shipPane, col);
+                GridPane.setRowIndex(shipPane, row);
             }
         } else {
             if (row + shipSize <= 11 && col < 11 && row > 0 && col > 0 ) {
                 currentCol = col;
                 currentRow = row;
-                GridPane.setColumnIndex(ship, col);
-                GridPane.setRowIndex(ship, row);
+                GridPane.setColumnIndex(shipPane, col);
+                GridPane.setRowIndex(shipPane, row);
             }
         }
     }
@@ -323,7 +336,7 @@ public class GameController {
         placeShips(tableTwo.getTable());
         tableTwo.printPlayerBoard();
 
-        ship.setVisible(false);
+        shipPane.setVisible(false);
     }
 
     public boolean checkCell (int row, int cols, String[][] table){
@@ -384,3 +397,70 @@ public class GameController {
     }
 
 }
+/*
+@FXML
+public void inicialize() {
+    setupGrid(gridPane);
+    setupGrid(gridPaneTwo);
+
+    createAndPlaceNextShip();
+    gridPane.setOnMouseMoved(this::handleMouseMoved);
+
+    // Add keyboard event to the scene
+    gridPane.setOnKeyPressed(this::handleKeyPressed);
+    gridPane.setFocusTraversable(true); // Ensure the gridPane can receive keyboard events
+}
+
+    private void setupGrid(GridPane grid) {
+        for (int i = 0; i < 11; i++) {
+            for (int j = 0; j < 11; j++) {
+                Pane pane = new Pane();
+                pane.setPrefSize(CELL_SIZE, CELL_SIZE);
+                pane.setStyle("-fx-border-color: gray;");
+                grid.add(pane, j, i);
+            }
+        }
+    }
+
+    private void createAndPlaceNextShip() {
+        if (currentShipIndex < SHIP_SIZES.length) {
+            currentShip = new Ship(SHIP_SIZES[currentShipIndex]);
+            anchorpaneOne.getChildren().add(currentShip.getPane());
+            updateShipPosition();
+            currentShipIndex++;
+        }
+    }
+
+    private void handleMouseMoved(MouseEvent event) {
+        double x = event.getX();
+        double y = event.getY();
+        currentShip.setPosition(x, y);
+    }
+
+    private void handleKeyPressed(KeyEvent event) {
+        switch (event.getCode()) {
+            case R: // Key for rotation
+                currentShip.rotate();
+                updateShipPosition();
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void updateShipPosition() {
+        int colSpan = currentShip.isHorizontal() ? currentShip.getSize() : 1;
+        int rowSpan = currentShip.isHorizontal() ? 1 : currentShip.getSize();
+        int col = (int) (currentShip.getPane().getLayoutX() / CELL_SIZE);
+        int row = (int) (currentShip.getPane().getLayoutY() / CELL_SIZE);
+
+        GridPane.setColumnIndex(currentShip.getPane(), col);
+        GridPane.setRowIndex(currentShip.getPane(), row);
+        GridPane.setColumnSpan(currentShip.getPane(), colSpan);
+        GridPane.setRowSpan(currentShip.getPane(), rowSpan);
+    }
+
+
+    // Include the existing methods and code you have
+    // This might include setup methods, handling other events, etc.
+}*/

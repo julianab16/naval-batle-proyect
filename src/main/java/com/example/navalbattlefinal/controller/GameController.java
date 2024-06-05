@@ -4,6 +4,7 @@ package com.example.navalbattlefinal.controller;
 import com.example.navalbattlefinal.view.Table;
 
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
@@ -135,6 +136,7 @@ public class GameController {
                     GridPane.setValignment(label, VPos.CENTER);
                     gridPaneTwo.add(label, col, row); // Agregar el número a la celda
                 }
+
             }
         }
 
@@ -145,6 +147,7 @@ public class GameController {
 
         // Añadir un EventHandler para cambiar la orientación al hacer clic
         ship.setOnMouseClicked(this::handleShipClick);
+        System.out.println(ship);
         gridPane.setOnMouseMoved(this::handleMouseMoved);
 
         // Añadir el barco al grid
@@ -256,10 +259,13 @@ public class GameController {
     }
 
     private void handleShipClick(MouseEvent event) {
+        Integer shipCol = gridPane.getColumnIndex(ship);
+        Integer shipRow = gridPane.getRowIndex(ship);
+        System.out.println(shipCol + " " + shipRow);
+        Integer shipCol2 = gridPaneTwo.getColumnIndex(ship);
+        Integer shipRow2 = gridPaneTwo.getRowIndex(ship);
+        System.out.println(shipCol2 +" "+ shipRow2);
         try {
-            Integer shipCol = GridPane.getColumnIndex(ship);
-            Integer shipRow = GridPane.getRowIndex(ship);
-
             int shipSize = SHIP_SIZES[currentShipIndex];
             boolean canPlace = true;
 
@@ -322,6 +328,7 @@ public class GameController {
 
 
             String[][] tableEnemy = tableTwo.getTable();
+            //System.out.println(tableEnemy);
             //if ([col][row] == tableEnemy[col][row])
             //System.out.println("Col: " + col + ", Row: " + row);
             //System.out.println("tableEnemy length: " + tableEnemy.length);
@@ -360,8 +367,30 @@ public class GameController {
             gridPaneTwo.setVisible(true);
             anchorpaneTwo.setVisible(true);
             labelEnemy.setVisible(true);
+
             System.out.println("Matriz del Jugador:");
             tableOne.printPlayerBoard();
+            gridPaneTwo.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                                             @Override
+                                             public void handle(MouseEvent event) {
+                                                 try {
+                                                     double x = event.getX();
+                                                     double y = event.getY();
+
+                                                     // Obtener el tamaño de las celdas
+                                                     double cellWidth = gridPaneTwo.getWidth() / columns;
+                                                     double cellHeight = gridPaneTwo.getHeight() / rows;
+
+                                                     // Calcular la columna y la fila basándose en las coordenadas del evento
+                                                     int clickedCol = (int) (x / cellWidth);
+                                                     int clickedRow = (int) (y / cellHeight);
+
+                                                     System.out.println("Clic en fila " + clickedRow + ", columna " + clickedCol);
+                                                 } catch (Exception e) {
+                                                     System.err.println("Error ButtonPlayGame: " + e.getMessage());
+                                                 }
+                                             }
+            });
 
             System.out.println("Matriz del Enemigo:");
             placeShips(tableTwo.getTable());

@@ -370,6 +370,9 @@ public class GameController {
 
             System.out.println("Matriz del Jugador:");
             tableOne.printPlayerBoard();
+            System.out.println("Matriz del Enemigo:");
+            placeShips(tableTwo.getTable());
+            tableTwo.printPlayerBoard();
             gridPaneTwo.setOnMouseClicked(new EventHandler<MouseEvent>() {
                                              @Override
                                              public void handle(MouseEvent event) {
@@ -386,15 +389,18 @@ public class GameController {
                                                      int clickedRow = (int) (y / cellHeight);
 
                                                      System.out.println("Clic en fila " + clickedRow + ", columna " + clickedCol);
+
+                                                     if (tableTwo.getTable()[clickedRow][clickedCol].equals("X")) {
+                                                         System.out.println("¡Impacto! El jugador golpeó un barco enemigo en la posición " + clickedRow + ", " + clickedCol);
+                                                         // Aquí puedes realizar acciones adicionales, como marcar el barco como golpeado en tu matriz de enemigos
+                                                     } else {
+                                                         System.out.println("El jugador no golpeó ningún barco enemigo en la posición " + clickedRow + ", " + clickedCol);
+                                                     }
                                                  } catch (Exception e) {
                                                      System.err.println("Error ButtonPlayGame: " + e.getMessage());
                                                  }
                                              }
             });
-
-            System.out.println("Matriz del Enemigo:");
-            placeShips(tableTwo.getTable());
-            tableTwo.printPlayerBoard();
 
             ship.setVisible(false);
         }catch (Exception e) {

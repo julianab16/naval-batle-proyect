@@ -1,6 +1,7 @@
 package com.example.navalbattlefinal.controller;
 
 
+import com.example.navalbattlefinal.model.RandomShooter;
 import com.example.navalbattlefinal.view.Table;
 
 import javafx.event.ActionEvent;
@@ -395,6 +396,22 @@ public class GameController {
                                                          // Aquí puedes realizar acciones adicionales, como marcar el barco como golpeado en tu matriz de enemigos
                                                      } else {
                                                          System.out.println("El jugador no golpeó ningún barco enemigo en la posición " + clickedRow + ", " + clickedCol);
+                                                     }
+
+                                                     RandomShooter machineShooter = new RandomShooter(10, 10); // Crear instancia de RandomShooter para la máquina
+                                                     int[] machineShotPosition = machineShooter.shoot(); // Obtener la próxima posición de disparo de la máquina
+                                                     if (machineShotPosition != null) {
+                                                         int machineRow = machineShotPosition[0];
+                                                         int machineCol = machineShotPosition[1];
+                                                         // Verificar si la posición generada es válida
+                                                         if (tableOne.getTable()[machineRow][machineCol].equals("X")) {
+                                                             System.out.println("¡Impacto! La máquina golpeó un barco enemigo en la posición " + machineRow + ", " + machineCol);
+                                                             // Aquí puedes realizar acciones adicionales, como marcar el barco como golpeado en tu matriz de enemigos
+                                                         } else {
+                                                             System.out.println("La máquina no golpeó ningún barco enemigo en la posición " + machineRow + ", " + machineCol);
+                                                         }
+                                                     } else {
+                                                         System.out.println("La máquina no puede disparar más, todas las posiciones han sido utilizadas.");
                                                      }
                                                  } catch (Exception e) {
                                                      System.err.println("Error ButtonPlayGame: " + e.getMessage());

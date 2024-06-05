@@ -1,23 +1,29 @@
 package com.example.navalbattlefinal.controller;
+import com.example.navalbattlefinal.model.RandomShooter;
+import com.example.navalbattlefinal.view.alert.AlertBox;
+import javafx.event.EventHandler;
+import javafx.scene.Node;
 
 
 import com.example.navalbattlefinal.view.Table;
 
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class GameController {
@@ -28,6 +34,9 @@ public class GameController {
     private AnchorPane anchorpaneTwo;
     @FXML
     private ImageView imagenViewEnemy;
+
+    @FXML
+    private AnchorPane anchorPaneP;
 
     private int[][] position1 = new int[11][11];
     private int previousCol = -1;
@@ -61,15 +70,34 @@ public class GameController {
     private int currentShipIndex = 0; // Índice del barco actual
 
     private Rectangle ship;
-
-    //Ship ship = new Ship();
-
+    private double posMouseX = 0, posMouseY = 0;
+    private int parentWidth = 682;  // Ancho del AnchorPane
+    private int parentHeight = 408; // Alto del AnchorPane
+    private final double POSITION_X1 = 69;
+    private final double POSITION_X2 = 101;
+    private final double POSITION_X3 = 133;
+    private final double POSITION_X4 = 165;
+    private final double POSITION_X5 = 197;
+    private final double POSITION_X6 = 229;
+    private final double POSITION_X7 = 261;
+    private final double POSITION_X8 = 293;
+    private final double POSITION_X9 = 325;
+    private final double POSITION_X10 = 357;
+    private final double POSITION_Y1 = 85;
+    private final double POSITION_Y2 = 117;
+    private final double POSITION_Y3 = 149;
+    private final double POSITION_Y4 = 181;
+    private final double POSITION_Y5 = 213;
+    private final double POSITION_Y6 = 245;
+    private final double POSITION_Y7 = 277;
+    private final double POSITION_Y8 = 309;
+    private final double POSITION_Y9 = 341;
+    private final double POSITION_Y10 = 373;
 
 
     @FXML
     public void inicialize() {
     try {
-        gridPaneTwo.setVisible(false);
         anchorpaneTwo.setVisible(false);
         imagenViewEnemy.setVisible(false);
 
@@ -109,8 +137,6 @@ public class GameController {
                     GridPane.setHalignment(label, HPos.CENTER); // Alinear el texto al centro horizontalmente
                     GridPane.setValignment(label, VPos.CENTER);
                     gridPane.add(label, col, row);// Agregar el número a la celda
-                } else if (row == 0 && col == 0) { // Si es la esquina superior izquierda
-                    // No hacer nada, ya que aquí no queremos números ni barcos
                 }
             }
         }
@@ -150,8 +176,6 @@ public class GameController {
             }
         }
 
-        anchorpaneTwo.getChildren().add(gridPaneTwo);
-        //putBoatsEnemy();
         ship = new Rectangle(SHIP_SIZES[currentShipIndex] * CELL_SIZE, CELL_SIZE);
         ship.setFill(Color.GRAY);
 
@@ -173,9 +197,29 @@ public class GameController {
                 }
             });
         }
-    }catch (Exception e) {
+        /*
+        VBox shipsBox = new VBox(10);
+        shipsBox.setLayoutX(700);
+        shipsBox.setLayoutY(200);
+
+        for (int size : SHIP_SIZES) {
+            Rectangle shipRect = new Rectangle(size * CELL_SIZE, CELL_SIZE);
+            shipRect.setFill(Color.GRAY);
+            shipsBox.getChildren().add(shipRect);
+
+            makeDraggable(shipRect);
+        }
+        anchorPaneP.getChildren().add(shipsBox);
+
+ */
+
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    } /*catch (Exception e) {
         System.err.println("Error Initialize: " + e.getMessage());
     }
+    */
     }
 
     private void handleKeyPressed(KeyEvent event) {
@@ -260,6 +304,68 @@ public class GameController {
         }
     }
 
+    public void makeDraggable(Node node) {
+        node.setOnMousePressed(mouseEvent -> {
+            // Guardar la posición del mouse cuando se presiona el botón
+            posMouseX = mouseEvent.getSceneX() - node.getLayoutX();
+            posMouseY = mouseEvent.getSceneY() - node.getLayoutY();
+
+        });
+
+        node.setOnMouseDragged(mouseEvent -> {
+            // Calcular nuevas posiciones
+            double newX = mouseEvent.getSceneX() - posMouseX;
+            double newY = mouseEvent.getSceneY() - posMouseY;
+
+
+            // Asegurarse de que el nodo no se salga del AnchorPane
+            if (newX >= 0 && newX <= parentWidth - node.getBoundsInParent().getWidth()) {
+                node.setLayoutX(newX);
+            }
+            if (newY >= 0 && newY <= parentHeight - node.getBoundsInParent().getHeight()) {
+                node.setLayoutY(newY);
+            }
+        });
+
+        node.setOnMouseReleased(mouseEvent -> {
+            // Restablecer el desplazamiento cuando se suelta el mouse
+            posMouseX = 0;
+            posMouseY = 0;
+            // Ajustar la posición a la más cercana
+            adjustToClosestPosition(node);
+        });
+    }
+
+    public void adjustToClosestPosition(Node node) {
+        double currentY = node.getLayoutY();
+        double[] positionsY = {POSITION_Y1, POSITION_Y2, POSITION_Y3,POSITION_Y4,POSITION_Y5,POSITION_Y6,POSITION_Y7,POSITION_Y8,POSITION_Y9,POSITION_Y10}; // Agrega aquí todas las posiciones Y fijas
+
+        double closestY = positionsY[0]; // Inicializa closestY con la primera posición
+        double minDifferenceY = Math.abs(currentY - positionsY[0]); // Calcula la diferencia absoluta con la primera posición
+
+        for (int i = 1; i < positionsY.length; i++) {
+            double difference = Math.abs(currentY - positionsY[i]); // Calcula la diferencia absoluta con la posición actual del bucle
+            if (difference < minDifferenceY) { // Si la diferencia es menor que la mínima registrada hasta ahora
+                closestY = positionsY[i]; // Actualiza closestY con la posición actual
+                minDifferenceY = difference; // Actualiza la mínima diferencia registrada
+            }
+        }
+
+        double currentX = node.getLayoutX();
+        double[] positionsX = {POSITION_X1, POSITION_X2, POSITION_X3, POSITION_X4, POSITION_X5, POSITION_X6, POSITION_X7, POSITION_X8, POSITION_X9, POSITION_X10};
+        double closestX = positionsX[0];
+        double minDifferenceX = Math.abs(currentX - positionsX[0]);
+
+        for (int i = 1; i < positionsX.length; i++) {
+            double differenceX = Math.abs(currentX - positionsX[i]);
+            if (differenceX < minDifferenceX) {
+                closestX = positionsX[i];
+                minDifferenceX = differenceX;
+            }
+        }
+        node.setLayoutY(closestY);
+        node.setLayoutX(closestX);
+    }
     private void handleShipClick(MouseEvent event) {
         Integer shipCol = gridPane.getColumnIndex(ship);
         Integer shipRow = gridPane.getRowIndex(ship);
@@ -342,6 +448,9 @@ public class GameController {
             System.err.println("Error handleMouseMoved: " + e.getMessage());
         }
     }
+    boolean gameFinished = false;
+    private boolean playerTurn = true;
+
     @FXML
     void buttonPlayGame(ActionEvent event) {
         try {
@@ -349,61 +458,145 @@ public class GameController {
             gridPaneTwo.setVisible(true);
             anchorpaneTwo.setVisible(true);
             imagenViewEnemy.setVisible(true);
+            ship.setVisible(false);
             System.out.println("Matriz del Jugador:");
             tableOne.printPlayerBoard();
-            gridPaneTwo.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                                             @Override
-                                             public void handle(MouseEvent event) {
-                                                 try {
-                                                     double x = event.getX();
-                                                     double y = event.getY();
-
-                                                     // Obtener el tamaño de las celdas
-                                                     double cellWidth = gridPaneTwo.getWidth() / columns;
-                                                     double cellHeight = gridPaneTwo.getHeight() / rows;
-
-                                                     // Calcular la columna y la fila basándose en las coordenadas del evento
-                                                     int clickedCol = (int) (x / cellWidth);
-                                                     int clickedRow = (int) (y / cellHeight);
-
-                        System.out.println("Clic en fila " + clickedRow + ", columna " + clickedCol);
-
-                        if (tableTwo.getTable()[clickedRow][clickedCol].equals("X")) {
-                            System.out.println("¡Impacto! El jugador golpeó un barco enemigo en la posición " + clickedRow + ", " + clickedCol);
-                            String IMAGE_PATH = "/com/example/navalbattlefinal/images/tocado.png";
-                            Image image = new Image(getClass().getResourceAsStream(IMAGE_PATH));
-                            ImageView imageView = new ImageView(image);
-                            imageView.setFitWidth(37);
-                            imageView.setFitHeight(37);
-                            imageView.setPreserveRatio(false);
-
-                            gridPaneTwo.add(imageView,clickedCol,clickedRow);
-
-                        } else {
-                            System.out.println("El jugador no golpeó ningún barco enemigo en la posición " + clickedRow + ", " + clickedCol);
-                            String IMAGE_PATH = "/com/example/navalbattlefinal/images/agua.png";
-                            Image image = new Image(getClass().getResourceAsStream(IMAGE_PATH));
-                            ImageView imageView = new ImageView(image);
-                            imageView.setFitWidth(37);
-                            imageView.setFitHeight(37);
-                            imageView.setPreserveRatio(false);
-                            gridPaneTwo.add(imageView,clickedCol,clickedRow);
-
-                        }
-                    } catch (Exception e) {
-                        System.err.println("Error ButtonPlayGame: " + e.getMessage());
-                    }
-                }
-            });
-
+            anchorpaneTwo.getChildren().add(gridPaneTwo);
             System.out.println("Matriz del Enemigo:");
             placeShips(tableTwo.getTable());
             tableTwo.printPlayerBoard();
+            gridPaneTwo.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent event) {
+                    try {
+                        if (!gameFinished) {
+                            double x = event.getX();
+                            double y = event.getY();
 
-            ship.setVisible(false);
-        }catch (Exception e) {
-            System.err.println("Error ButtonPlayGame: " + e.getMessage());
+                            // Obtener el tamaño de las celdas
+                            double cellWidth = gridPaneTwo.getWidth() / columns;
+                            double cellHeight = gridPaneTwo.getHeight() / rows;
+
+                            // Calcular la columna y la fila basándose en las coordenadas del evento
+                            int clickedCol = (int) (x / cellWidth);
+                            int clickedRow = (int) (y / cellHeight);
+
+                            System.out.println("Clic en fila " + clickedRow + ", columna " + clickedCol);
+
+                            if (playerTurn) {
+                                // Turno del jugador
+                                handlePlayerTurn(clickedRow, clickedCol);
+                            } else {
+                                // Turno de la máquina
+                                handleMachineTurn();
+                            }
+                        }
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    private void handlePlayerTurn(int clickedRow, int clickedCol) {
+        if (tableTwo.getTable()[clickedRow][clickedCol].equals("X")) {
+            System.out.println("¡Impacto! El jugador golpeó un barco enemigo en la posición " + clickedRow + ", " + clickedCol);
+            String IMAGE_PATH = "/com/example/navalbattlefinal/images/tocado.png";
+            Image image = new Image(getClass().getResourceAsStream(IMAGE_PATH));
+            ImageView imageView = new ImageView(image);
+            imageView.setFitWidth(37);
+            imageView.setFitHeight(37);
+            imageView.setPreserveRatio(false);
+            gridPaneTwo.add(imageView,clickedCol,clickedRow);
+        } else {
+            System.out.println("El jugador no golpeó ningún barco enemigo en la posición " + clickedRow + ", " + clickedCol);
+            String IMAGE_PATH = "/com/example/navalbattlefinal/images/agua.png";
+            Image image = new Image(getClass().getResourceAsStream(IMAGE_PATH));
+            ImageView imageView = new ImageView(image);
+            imageView.setFitWidth(37);
+            imageView.setFitHeight(37);
+            imageView.setPreserveRatio(false);
+            gridPaneTwo.add(imageView,clickedCol,clickedRow);
+        }
+
+        // Verificar si el jugador ha ganado
+        if (allPlayersShipsSunk(tableTwo.getTable())) {
+            System.out.println("¡Felicidades! Has ganado el juego.");
+            gameFinished = true;
+        }
+        playerTurn = false; // Pasar el turno a la máquina
+    }
+    private void handleMachineTurn() {
+        RandomShooter machineShooter = new RandomShooter(10, 10); // Crear instancia de RandomShooter para la máquina
+        int[] machineShotPosition; // Obtener la próxima posición de disparo de la máquina
+
+        do {
+            machineShotPosition = machineShooter.shoot(); // Obtener la próxima posición de disparo de la máquina
+        } while (!isValidShot(machineShotPosition));
+
+        if (machineShotPosition != null) {
+            int machineRow = machineShotPosition[0];
+            int machineCol = machineShotPosition[1];
+
+            if (tableOne.getTable()[machineRow][machineCol].equals("X")) {
+                System.out.println("¡Impacto! La máquina golpeó un barco enemigo en la posición " + machineRow + ", " + machineCol);
+                String IMAGE_PATH = "/com/example/navalbattlefinal/images/tocado.png";
+                Image image = new Image(getClass().getResourceAsStream(IMAGE_PATH));
+                ImageView imageView = new ImageView(image);
+                imageView.setFitWidth(37);
+                imageView.setFitHeight(37);
+                imageView.setPreserveRatio(false);
+                gridPane.add(imageView,machineCol,machineRow);
+            } else {
+                System.out.println("La máquina no golpeó ningún barco enemigo en la posición " + machineRow + ", " + machineCol);
+                String IMAGE_PATH = "/com/example/navalbattlefinal/images/agua.png";
+                Image image = new Image(getClass().getResourceAsStream(IMAGE_PATH));
+                ImageView imageView = new ImageView(image);
+                imageView.setFitWidth(37);
+                imageView.setFitHeight(37);
+                imageView.setPreserveRatio(false);
+                gridPane.add(imageView,machineCol,machineRow);
             }
+
+            // Verificar si la máquina ha ganado
+            if (allPlayersShipsSunk(tableOne.getTable())) {
+                System.out.println("¡La máquina ha ganado el juego!");
+                gameFinished = true;
+                String title = "GAME OVER";
+                String header = "Perdiste";
+                String content = "¡La máquina ha ganado el juego!";
+                new AlertBox().showMessage(title, header, content);
+            }
+        }
+        playerTurn = true; // Pasar el turno al jugador
+    }
+    private boolean isValidShot(int[] position) {
+        return position != null && position.length == 2 && position[0] >= 0 && position[0] < 10 && position[1] >= 0 && position[1] < 10;
+    }
+    public boolean allPlayersShipsSunk(String[][] enemyGrid) {
+        for (int i = 1; i < enemyGrid.length; i++) {
+            for (int j = 1; j < enemyGrid[i].length; j++) {
+                if (enemyGrid[i][j].equals("X")) {
+                    return false; // Si se encuentra un barco sin ser golpeado, devuelve falso
+                }
+            }
+        }
+        return true; // Si no se encontraron barcos sin ser golpeados, devuelve verdadero
+    }
+
+    List<int[]> coordinatesPlayer = new ArrayList<>();
+    List<int[]> coordinatesEnemy = new ArrayList<>();
+
+
+
+    public static String getCoordinatesAsString(List<int[]> coordinates) {
+        StringBuilder result = new StringBuilder();
+        for (int[] coord : coordinates) {
+            result.append("Fila: ").append(coord[0]).append(", Columna: ").append(coord[1]).append("\n");
+        }
+        return result.toString();
     }
 
     public boolean checkCell (int row, int cols, String[][] table){
@@ -413,6 +606,8 @@ public class GameController {
             for (int j = 0; j < 11; j++) {
                 if (table[row][cols] == ".") {
                     table[row][cols] = "X";
+                    System.out.println("Rectángulo en fila " + row + ", columna " + cols);
+                    coordinatesPlayer.add(new int[]{row, cols});
                     r = true;
                 }
             }
@@ -431,6 +626,8 @@ public class GameController {
 
                         if (canPlaceShip(table, row, col, size, horizontal)) {
                             placeShip(table, row, col, size, horizontal);
+                            System.out.println("Rectángulo enemy en fila " + row + ", columna " + col);
+
                             placed = true;
                         }
                     }
@@ -460,10 +657,12 @@ public class GameController {
     }
 
     private static void placeShip(String[][] table, int row, int col, int size, boolean horizontal) {
+
         try{
             if (horizontal) {
                 for (int i = 0; i < size; i++) {
                     table[row][col + i] = "X";
+
                 }
             } else {
                 for (int i = 0; i < size; i++) {
@@ -473,6 +672,6 @@ public class GameController {
         }catch (Exception e) {
             System.err.println("Error placeShip: " + e.getMessage());
         }
-    }
 
+    }
 }

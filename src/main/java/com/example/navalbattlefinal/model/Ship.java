@@ -21,8 +21,6 @@ public class Ship {
         aircraftCarrier.setStroke(Color.BLACK);
         aircraftCarrier.setFill(Color.GRAY);
         paneAircraftCarrier.getChildren().addAll(aircraftCarrier);
-
-
     }
 
     public Pane getAircraftCarrier(){

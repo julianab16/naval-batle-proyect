@@ -1,23 +1,17 @@
 package com.example.navalbattlefinal.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class NavalBattle {
-    public enum EstadoCasilla {
-        VACIA('.'),
-        OCUPADA('X'),
-        ATACADA('-');
+    private List<Boats> boats;
 
-        private final char simbolo;
-
-        EstadoCasilla(char simbolo) {
-            this.simbolo = simbolo;
-        }
-
-        public char getSimbolo() {
-            return this.simbolo;
-        }
+    public NavalBattle() {
+        boats = new ArrayList<>();
     }
 
-    public enum EstadoBarco {
-        POSICIONADO, HUNDIDO, NO_POSICIONADO
+    public List<Boats> getBarcos() {
+        return boats;
     }
+
 }

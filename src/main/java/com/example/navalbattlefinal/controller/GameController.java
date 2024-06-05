@@ -260,12 +260,8 @@ public class GameController {
     }
 
     private void handleShipClick(MouseEvent event) {
-        Integer shipCol = gridPane.getColumnIndex(ship);
-        Integer shipRow = gridPane.getRowIndex(ship);
-        System.out.println(shipCol + " " + shipRow);
-        Integer shipCol2 = gridPaneTwo.getColumnIndex(ship);
-        Integer shipRow2 = gridPaneTwo.getRowIndex(ship);
-        System.out.println(shipCol2 +" "+ shipRow2);
+        Integer shipCol = GridPane.getColumnIndex(ship);
+        Integer shipRow = GridPane.getRowIndex(ship);
         try {
             int shipSize = SHIP_SIZES[currentShipIndex];
             boolean canPlace = true;

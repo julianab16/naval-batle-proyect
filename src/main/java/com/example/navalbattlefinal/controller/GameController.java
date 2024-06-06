@@ -1,6 +1,7 @@
 package com.example.navalbattlefinal.controller;
 import com.example.navalbattlefinal.model.RandomShooter;
 import com.example.navalbattlefinal.view.alert.AlertBox;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 
@@ -14,6 +15,7 @@ import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -40,6 +42,8 @@ public class GameController {
 
     private int[][] position1 = new int[11][11];
     private int previousCol = -1;
+
+    private List<int[]> shotsTaken; // Declaración de la lista de disparos
     private int previousRow = -1;
     private int[][] position2 = new int[11][11];
     Table tableOne = new Table();
@@ -97,6 +101,7 @@ public class GameController {
 
     @FXML
     public void inicialize() {
+        this.shotsTaken = new ArrayList<>(); // Inicialización de la lista de disparos
     try {
         anchorpaneTwo.setVisible(false);
         imagenViewEnemy.setVisible(false);
@@ -410,44 +415,23 @@ public class GameController {
 
     private void handleMouseMoved(MouseEvent event) {
         try {
+            Node node = event.getPickResult().getIntersectedNode();
+            if (node != null && GridPane.getColumnIndex(node) != null && GridPane.getRowIndex(node) != null) {
+                currentCol = GridPane.getColumnIndex(node);
+                currentRow = GridPane.getRowIndex(node);
+                if (currentCol != previousCol || currentRow != previousRow) {
+                    previousCol = currentCol;
+                    previousRow = currentRow;
 
-            int col = (int) (event.getX() / CELL_SIZE);
-            int row = (int) (event.getY() / CELL_SIZE);
-
-
-            String[][] tableEnemy = tableTwo.getTable();
-            //System.out.println(tableEnemy);
-            //if ([col][row] == tableEnemy[col][row])
-            //System.out.println("Col: " + col + ", Row: " + row);
-            //System.out.println("tableEnemy length: " + tableEnemy.length);
-            if (col != previousCol || row != previousRow) {
-                // Realizar acciones solo si la posición del mouse ha cambiado
-                previousCol = col;
-                previousRow = row;
-
-                // Verificar que el barco no se salga de los límites
-                int shipSize = SHIP_SIZES[currentShipIndex];
-                if (isHorizontal) {
-                    if (col + shipSize <= 11 && row < 11 && row > 0 && col > 0) {
-                        currentCol = col;
-                        currentRow = row;
-                        GridPane.setColumnIndex(ship, col);
-                        GridPane.setRowIndex(ship, row);
-                    }
-                } else {
-                    if (row + shipSize <= 11 && col < 11 && row > 0 && col > 0) {
-                        currentCol = col;
-                        currentRow = row;
-                        GridPane.setColumnIndex(ship, col);
-                        GridPane.setRowIndex(ship, row);
-                    }
+                    GridPane.setColumnIndex(ship, currentCol);
+                    GridPane.setRowIndex(ship, currentRow);
+                }
             }
-
-            }
-        }catch (Exception e) {
+        } catch (Exception e) {
             System.err.println("Error handleMouseMoved: " + e.getMessage());
         }
     }
+
     boolean gameFinished = false;
     private boolean playerTurn = true;
 
@@ -500,16 +484,39 @@ public class GameController {
             throw new RuntimeException(e);
         }
     }
+    private boolean allPlayersShipsSunk(String[][] table) {
+        for (int row = 0; row < table.length; row++) {
+            for (int col = 0; col < table[row].length; col++) {
+                // Verificar si hay alguna celda con "X" que indica la presencia de una parte de un barco
+                if (table[row][col].equals("X")) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     private void handlePlayerTurn(int clickedRow, int clickedCol) {
+        // Verificar si el clic está dentro del rango permitido (columna 1 hasta la 11)
+        if ((clickedRow < 1 || clickedRow > 11) || (clickedCol < 1 || clickedCol > 11)) {
+            return; // Ignorar clics fuera del rango permitido
+        }
+
+        // Verificar si ya se disparó en esta posición
+        if (tableTwo.getTable()[clickedRow][clickedCol].equals("H") || tableTwo.getTable()[clickedRow][clickedCol].equals("M")) {
+            return; // Ignorar clics en posiciones ya disparadas
+        }
+
         if (tableTwo.getTable()[clickedRow][clickedCol].equals("X")) {
             System.out.println("¡Impacto! El jugador golpeó un barco enemigo en la posición " + clickedRow + ", " + clickedCol);
+            tableTwo.getTable()[clickedRow][clickedCol] = "H"; // Marcar como hundido en la tabla
             String IMAGE_PATH = "/com/example/navalbattlefinal/images/tocado.png";
             Image image = new Image(getClass().getResourceAsStream(IMAGE_PATH));
             ImageView imageView = new ImageView(image);
             imageView.setFitWidth(37);
             imageView.setFitHeight(37);
             imageView.setPreserveRatio(false);
-            gridPaneTwo.add(imageView,clickedCol,clickedRow);
+            gridPaneTwo.add(imageView, clickedCol, clickedRow);
         } else {
             System.out.println("El jugador no golpeó ningún barco enemigo en la posición " + clickedRow + ", " + clickedCol);
             String IMAGE_PATH = "/com/example/navalbattlefinal/images/agua.png";
@@ -518,15 +525,29 @@ public class GameController {
             imageView.setFitWidth(37);
             imageView.setFitHeight(37);
             imageView.setPreserveRatio(false);
-            gridPaneTwo.add(imageView,clickedCol,clickedRow);
+            gridPaneTwo.add(imageView, clickedCol, clickedRow);
         }
 
         // Verificar si el jugador ha ganado
         if (allPlayersShipsSunk(tableTwo.getTable())) {
             System.out.println("¡Felicidades! Has ganado el juego.");
             gameFinished = true;
+
+            // Mostrar un cuadro de diálogo de alerta
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("¡Juego Terminado!");
+                alert.setHeaderText(null);
+                alert.setContentText("¡Felicidades! Has ganado el juego.");
+                alert.showAndWait();
+
+                // Terminar el juego o realizar otras acciones necesarias
+                Platform.exit(); // Cierra la aplicación
+            });
+        } else {
+            playerTurn = false; // Pasar el turno a la máquina
+            handleMachineTurn(); // Llamar al turno de la máquina
         }
-        playerTurn = false; // Pasar el turno a la máquina
     }
     private void handleMachineTurn() {
         RandomShooter machineShooter = new RandomShooter(10, 10); // Crear instancia de RandomShooter para la máquina
@@ -534,21 +555,25 @@ public class GameController {
 
         do {
             machineShotPosition = machineShooter.shoot(); // Obtener la próxima posición de disparo de la máquina
-        } while (!isValidShot(machineShotPosition));
+        } while (!isValidShot(machineShotPosition) || isShotRepeated(machineShotPosition)); // Verificar si el disparo es válido y no se ha repetido
 
         if (machineShotPosition != null) {
-            int machineRow = machineShotPosition[0];
-            int machineCol = machineShotPosition[1];
+            int machineRow = machineShotPosition[0] + 1;
+            int machineCol = machineShotPosition[1] + 1;
+
+            // Registra la posición del disparo
+            shotsTaken.add(machineShotPosition);
 
             if (tableOne.getTable()[machineRow][machineCol].equals("X")) {
                 System.out.println("¡Impacto! La máquina golpeó un barco enemigo en la posición " + machineRow + ", " + machineCol);
+                tableOne.getTable()[machineRow][machineCol] = "H"; // Marcar como hundido en la tabla
                 String IMAGE_PATH = "/com/example/navalbattlefinal/images/tocado.png";
                 Image image = new Image(getClass().getResourceAsStream(IMAGE_PATH));
                 ImageView imageView = new ImageView(image);
                 imageView.setFitWidth(37);
                 imageView.setFitHeight(37);
                 imageView.setPreserveRatio(false);
-                gridPane.add(imageView,machineCol,machineRow);
+                gridPane.add(imageView, machineCol, machineRow);
             } else {
                 System.out.println("La máquina no golpeó ningún barco enemigo en la posición " + machineRow + ", " + machineCol);
                 String IMAGE_PATH = "/com/example/navalbattlefinal/images/agua.png";
@@ -557,33 +582,45 @@ public class GameController {
                 imageView.setFitWidth(37);
                 imageView.setFitHeight(37);
                 imageView.setPreserveRatio(false);
-                gridPane.add(imageView,machineCol,machineRow);
+                gridPane.add(imageView, machineCol, machineRow);
             }
 
             // Verificar si la máquina ha ganado
             if (allPlayersShipsSunk(tableOne.getTable())) {
                 System.out.println("¡La máquina ha ganado el juego!");
                 gameFinished = true;
-                String title = "GAME OVER";
-                String header = "Perdiste";
-                String content = "¡La máquina ha ganado el juego!";
-                new AlertBox().showMessage(title, header, content);
+
+                // Mostrar un cuadro de diálogo de alerta
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("¡Juego Terminado!");
+                    alert.setHeaderText("GAME OVER");
+                    alert.setContentText("¡La máquina ha ganado el juego!");
+                    alert.showAndWait();
+
+                    // Terminar el juego o realizar otras acciones necesarias
+                    Platform.exit(); // Cierra la aplicación
+                });
+            } else {
+                playerTurn = true; // Pasar el turno al jugador
             }
         }
-        playerTurn = true; // Pasar el turno al jugador
     }
-    private boolean isValidShot(int[] position) {
-        return position != null && position.length == 2 && position[0] >= 0 && position[0] < 10 && position[1] >= 0 && position[1] < 10;
-    }
-    public boolean allPlayersShipsSunk(String[][] enemyGrid) {
-        for (int i = 1; i < enemyGrid.length; i++) {
-            for (int j = 1; j < enemyGrid[i].length; j++) {
-                if (enemyGrid[i][j].equals("X")) {
-                    return false; // Si se encuentra un barco sin ser golpeado, devuelve falso
-                }
+
+    // Método para verificar si un disparo se ha repetido
+    private boolean isShotRepeated(int[] shotPosition) {
+        for (int[] shot : shotsTaken) {
+            if (shot[0] == shotPosition[0] && shot[1] == shotPosition[1]) {
+                return true;
             }
         }
-        return true; // Si no se encontraron barcos sin ser golpeados, devuelve verdadero
+        return false;
+    }
+
+    // Método para verificar si un disparo es válido
+    private boolean isValidShot(int[] shotPosition) {
+        // Verificar si la posición está dentro del rango del tablero
+        return shotPosition != null && shotPosition[0] >= 0 && shotPosition[0] < 10 && shotPosition[1] >= 0 && shotPosition[1] < 10;
     }
 
     List<int[]> coordinatesPlayer = new ArrayList<>();

@@ -8,13 +8,12 @@ public class AircraftCarrier {
     private Polygon aircraftCarrier;
 
     public AircraftCarrier() {
-        aircraftCarrier = new Polygon(
-                13.0, 0.0,
-                25.0, 0.0,
-                25.0, 86.0,
-                0.0, 86.0,
-                0.0, 20.0,
-                13.0, 10.0);
+        aircraftCarrier = new Polygon(100.0, 0.0,
+                110.0, 0.0,
+                110.0, 60.0,
+                90.0, 60.0,
+                90.0, 20.0,
+                100.0, 10.0);
         aircraftCarrier.setFill(Color.GRAY);
         aircraftCarrier.setStroke(Color.BLACK);
         aircraftCarrier.setStrokeWidth(2.0);

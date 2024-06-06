@@ -1,6 +1,5 @@
 package com.example.navalbattlefinal.controller;
 import com.example.navalbattlefinal.model.RandomShooter;
-import com.example.navalbattlefinal.view.alert.AlertBox;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -13,7 +12,6 @@ import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
@@ -24,9 +22,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class GameController {
 
@@ -43,6 +39,7 @@ public class GameController {
     private int[][] position1 = new int[11][11];
     private int previousCol = -1;
 
+    private Set<String> alreadyShotPositions = new HashSet<>();
     private List<int[]> shotsTaken; // Declaración de la lista de disparos
     private int previousRow = -1;
     private int[][] position2 = new int[11][11];
@@ -52,6 +49,7 @@ public class GameController {
     GridPane gridPane = new GridPane();
     GridPane gridPaneTwo = new GridPane();
     private static final int[] SHIP_SIZES = {4, 3, 3, 2, 2, 2, 1, 1, 1};
+    private boolean isHorizontal = true; // Variable para controlar la orientación del barco
     String[] images = {
             "/com/example/navalbattlefinal/images/boats/destructor.png",
             "/com/example/navalbattlefinal/images/boats/destructor.png",
@@ -70,13 +68,14 @@ public class GameController {
     private static final int CELL_SIZE = 38;
     private int currentRow = 0;
     private int currentCol = 0;
-    private boolean isHorizontal = true; // Estado inicial del barco
     private int currentShipIndex = 0; // Índice del barco actual
 
     private Rectangle ship;
     private double posMouseX = 0, posMouseY = 0;
     private int parentWidth = 682;  // Ancho del AnchorPane
     private int parentHeight = 408; // Alto del AnchorPane
+
+    private boolean rotateKeyPressed = false;
     private final double POSITION_X1 = 69;
     private final double POSITION_X2 = 101;
     private final double POSITION_X3 = 133;
@@ -114,6 +113,7 @@ public class GameController {
         );
 
         Border border = new Border(borderStroke);
+
 
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < columns; col++) {
@@ -245,12 +245,12 @@ public class GameController {
             int shipSize = SHIP_SIZES[currentShipIndex];
 
             if (isHorizontal) {
-                for (int i = 0; i < shipSize; i++) {
+                for (int i = 1; i < shipSize; i++) {
                     // Actualiza la posición de la tabla del jugador aquí
                     position1[currentRow][currentCol + i] = 1;
                 }
             } else {
-                for (int i = 0; i < shipSize; i++) {
+                for (int i = 1; i < shipSize; i++) {
                     // Actualiza la posición de la tabla del jugador aquí
                     position1[currentRow + i][currentCol] = 1;
                 }
@@ -412,9 +412,28 @@ public class GameController {
             System.err.println("Error HandleHandClick: " + e.getMessage());
         }
     }
+    // Controlador de eventos de teclado para manejar las pulsaciones de teclas
+    private void handleKeyPressedG(KeyEvent event) {
+        if (event.getCode() == KeyCode.R) {
+            rotateKeyPressed = true;
+        }
+    }
 
+    // Controlador de eventos de teclado para manejar las liberaciones de teclas
+    private void handleKeyReleased(KeyEvent event) {
+        if (event.getCode() == KeyCode.R) {
+            rotateKeyPressed = false;
+        }
+    }
     private void handleMouseMoved(MouseEvent event) {
         try {
+            // Manejar la rotación del barco si se ha presionado la tecla R
+            if (rotateKeyPressed) {
+                rotateShip();
+                rotateKeyPressed = false; // Restablecer la variable a false después de rotar el barco
+            }
+
+            int shipSize = SHIP_SIZES[currentShipIndex];
             Node node = event.getPickResult().getIntersectedNode();
             if (node != null && GridPane.getColumnIndex(node) != null && GridPane.getRowIndex(node) != null) {
                 currentCol = GridPane.getColumnIndex(node);
@@ -423,8 +442,19 @@ public class GameController {
                     previousCol = currentCol;
                     previousRow = currentRow;
 
-                    GridPane.setColumnIndex(ship, currentCol);
-                    GridPane.setRowIndex(ship, currentRow);
+                    // Verificar si la colocación del barco está dentro de los límites del GridPane
+                    if ((isHorizontal && currentCol >= 1 && currentCol + shipSize <= 11 && currentRow >= 1 && currentRow <= 11) ||
+                            (!isHorizontal && currentRow >= 1 && currentRow + shipSize <= 11 && currentCol >= 1 && currentCol <= 11)) {
+
+                        // Colocar el barco en la posición actual
+                        if (isHorizontal) {
+                            GridPane.setColumnIndex(ship, currentCol);
+                            GridPane.setRowIndex(ship, currentRow);
+                        } else {
+                            GridPane.setColumnIndex(ship, currentCol);
+                            GridPane.setRowIndex(ship, currentRow);
+                        }
+                    }
                 }
             }
         } catch (Exception e) {
@@ -502,10 +532,13 @@ public class GameController {
             return; // Ignorar clics fuera del rango permitido
         }
 
-        // Verificar si ya se disparó en esta posición
-        if (tableTwo.getTable()[clickedRow][clickedCol].equals("H") || tableTwo.getTable()[clickedRow][clickedCol].equals("M")) {
+        // Verificar si la posición ya fue disparada
+        if (alreadyShotPositions.contains(clickedRow + "," + clickedCol)) {
             return; // Ignorar clics en posiciones ya disparadas
         }
+
+        // Marcar la posición como disparada
+        alreadyShotPositions.add(clickedRow + "," + clickedCol);
 
         if (tableTwo.getTable()[clickedRow][clickedCol].equals("X")) {
             System.out.println("¡Impacto! El jugador golpeó un barco enemigo en la posición " + clickedRow + ", " + clickedCol);

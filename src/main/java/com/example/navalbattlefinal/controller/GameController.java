@@ -22,11 +22,12 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class GameController {
+public class GameController implements Serializable {
 
     @FXML
     private AnchorPane anchorpaneOne;
@@ -38,16 +39,16 @@ public class GameController {
     @FXML
     private AnchorPane anchorPaneP;
 
-    private int[][] position1 = new int[11][11];
+    private int[][] position1 = new int[11][11];// Position grid for player 1
     private int previousCol = -1;
     private int previousRow = -1;
-    private int[][] position2 = new int[11][11];
-    Table tableOne = new Table();
-    Table tableTwo = new Table();
-    Table tableClicks = new Table();
-    GridPane gridPane = new GridPane();
-    GridPane gridPaneTwo = new GridPane();
-    private static final int[] SHIP_SIZES = {4, 3, 3, 2, 2, 2, 1, 1, 1};
+    private int[][] position2 = new int[11][11];// Position grid for player 2
+    Table tableOne = new Table();// Table for player 1's ships
+    Table tableTwo = new Table();// Table for player 2's ships
+    Table tableClicks = new Table();// Table for tracking clicks
+    GridPane gridPane = new GridPane();// GridPane for player 1's board
+    GridPane gridPaneTwo = new GridPane(); // GridPane for player 2's board
+    private static final int[] SHIP_SIZES = {4, 3, 3, 2, 2, 2, 1, 1, 1};// Sizes of the ships
     String[] images = {
             "/com/example/navalbattlefinal/images/boats/destructor.png",
             "/com/example/navalbattlefinal/images/boats/destructor.png",
@@ -61,16 +62,16 @@ public class GameController {
             "/com/example/navalbattlefinal/images/boats/fragata.png"
     };
     private static final Random random = new Random();
-    private static final int rows = 11;
-    private static final int columns = 11;
-    private static final int CELL_SIZE = 38;
-    private int currentRow = 0;
-    private int currentCol = 0;
+    private static final int rows = 11;// Number of rows in the grid
+    private static final int columns = 11;// Number of columns in the grid
+    private static final int CELL_SIZE = 38;// Size of each cell in the grid
+    private int currentRow = 0;// Current row for ship placement
+    private int currentCol = 0;// Current column for ship placement
     private boolean isHorizontal = true; // Estado inicial del barco
     private int currentShipIndex = 0; // Índice del barco actual
 
-    private Rectangle ship;
-    private double posMouseX = 0, posMouseY = 0;
+    private Rectangle ship;// Rectangle representing the ship
+    private double posMouseX = 0, posMouseY = 0;// Mouse position
     private int parentWidth = 682;  // Ancho del AnchorPane
     private int parentHeight = 408; // Alto del AnchorPane
     private final double POSITION_X1 = 69;
@@ -94,21 +95,27 @@ public class GameController {
     private final double POSITION_Y9 = 341;
     private final double POSITION_Y10 = 373;
 
-
+    /**
+     * Initializes the game board and sets up the user interface.
+     */
     @FXML
     public void inicialize() {
     try {
+        /**Hide player 2's board initially*/
         anchorpaneTwo.setVisible(false);
+        /**Hide enemy's image initially*/
         imagenViewEnemy.setVisible(false);
-
+        /**Define the border style for the grid cells*/
         BorderStroke borderStroke = new BorderStroke(
-                Color.BLACK, // Color del borde
-                BorderStrokeStyle.SOLID, // Estilo del borde
-                CornerRadii.EMPTY, // Radios de las esquinas
-                new BorderWidths(1) // Grosor del borde
+                Color.BLACK,
+                BorderStrokeStyle.SOLID,
+                CornerRadii.EMPTY,
+                new BorderWidths(1)
         );
 
         Border border = new Border(borderStroke);
+        /**Create the grid for player*/
+
 
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < columns; col++) {
@@ -124,9 +131,10 @@ public class GameController {
                     label.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
                     GridPane.setHgrow(label, Priority.ALWAYS);
                     GridPane.setVgrow(label, Priority.ALWAYS);
-                    GridPane.setHalignment(label, HPos.CENTER); // Alinear el texto al centro horizontalmente
+                    GridPane.setHalignment(label, HPos.CENTER);
                     GridPane.setValignment(label, VPos.CENTER);
-                    gridPane.add(label, col, row); // Agregar el número a la celda
+                    /** Add the number to the cell*/
+                    gridPane.add(label, col, row);
                 }
                 if (col == 0 && row > 0) {
                     Label label = new Label(Integer.toString(row));
@@ -134,9 +142,10 @@ public class GameController {
                     label.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
                     GridPane.setHgrow(label, Priority.ALWAYS);
                     GridPane.setVgrow(label, Priority.ALWAYS);
-                    GridPane.setHalignment(label, HPos.CENTER); // Alinear el texto al centro horizontalmente
+                    GridPane.setHalignment(label, HPos.CENTER);
                     GridPane.setValignment(label, VPos.CENTER);
-                    gridPane.add(label, col, row);// Agregar el número a la celda
+                    /** Add the number to the cell*/
+                    gridPane.add(label, col, row);
                 }
             }
         }
@@ -157,10 +166,11 @@ public class GameController {
                     label.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
                     GridPane.setHgrow(label, Priority.ALWAYS);
                     GridPane.setVgrow(label, Priority.ALWAYS);
-                    GridPane.setHalignment(label, HPos.CENTER); // Alinear el texto al centro horizontalmente
+                    GridPane.setHalignment(label, HPos.CENTER);
                     GridPane.setValignment(label, VPos.CENTER);
-                    GridPane.setHalignment(label, HPos.CENTER); // Alinear el texto al centro horizontalmente
-                    gridPaneTwo.add(label, col, row); // Agregar el número a la celda
+                    GridPane.setHalignment(label, HPos.CENTER);
+                    /** Add the number to the cell*/
+                    gridPaneTwo.add(label, col, row);
                 }
                 if (col == 0 && row > 0) {
                     Label label = new Label(Integer.toString(row));
@@ -168,9 +178,10 @@ public class GameController {
                     label.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
                     GridPane.setHgrow(label, Priority.ALWAYS);
                     GridPane.setVgrow(label, Priority.ALWAYS);
-                    GridPane.setHalignment(label, HPos.CENTER); // Alinear el texto al centro horizontalmente
+                    GridPane.setHalignment(label, HPos.CENTER);
                     GridPane.setValignment(label, VPos.CENTER);
-                    gridPaneTwo.add(label, col, row); // Agregar el número a la celda
+                    /** Add the number to the cell*/
+                    gridPaneTwo.add(label, col, row);
                 }
 
             }
@@ -179,12 +190,12 @@ public class GameController {
         ship = new Rectangle(SHIP_SIZES[currentShipIndex] * CELL_SIZE, CELL_SIZE);
         ship.setFill(Color.GRAY);
 
-        // Añadir un EventHandler para cambiar la orientación al hacer clic
+        /** Add a EventHandler to change the orientation on click*/
         ship.setOnMouseClicked(this::handleShipClick);
         System.out.println(ship);
         gridPane.setOnMouseMoved(this::handleMouseMoved);
 
-        // Añadir el barco al grid
+        /** Add the ship to the grid*/
         gridPane.add(ship, 1, 1, SHIP_SIZES[currentShipIndex], 1);
 
         Scene scene = gridPane.getScene();
@@ -212,8 +223,6 @@ public class GameController {
         anchorPaneP.getChildren().add(shipsBox);
 
  */
-
-
     } catch (Exception e) {
         e.printStackTrace();
     } /*catch (Exception e) {

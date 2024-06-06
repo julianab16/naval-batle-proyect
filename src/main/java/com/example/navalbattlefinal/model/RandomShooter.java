@@ -21,11 +21,9 @@ public class RandomShooter {
                 remainingPositions.add(new int[]{row, col});
             }
         }
-
         // Barajar aleatoriamente la lista
         Collections.shuffle(remainingPositions);
     }
-
     public int[] shoot() {
         // Verificar si quedan posiciones disponibles
         if (remainingPositions.isEmpty()) {

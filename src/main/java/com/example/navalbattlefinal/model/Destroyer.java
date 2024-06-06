@@ -5,7 +5,6 @@ import javafx.scene.shape.Polygon;
 
 public class Destroyer {
     private Polygon destroyer;
-
     public Destroyer() {
         destroyer = new Polygon(
                 30.0, 0.0,

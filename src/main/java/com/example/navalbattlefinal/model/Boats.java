@@ -8,13 +8,10 @@ public class Boats {
         this.tamaño = tamaño;
         this.nombre = nombre;
     }
-
     public int getTamaño() {
         return tamaño;
     }
-
     public String getNombre() {
         return nombre;
     }
-
 }

@@ -4,9 +4,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
 public class Submarine {
-
     private Polygon submarine;
-
     public Submarine() {
         submarine = new Polygon(40.0, 0.0,
                 50.0, 10.0,
@@ -22,7 +20,6 @@ public class Submarine {
         submarine.setStroke(Color.BLACK);
         submarine.setStrokeWidth(2.0);
     }
-
     public Polygon getSubmarine() {
         return submarine;
     }

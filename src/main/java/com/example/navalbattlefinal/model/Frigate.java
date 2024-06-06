@@ -5,7 +5,6 @@ import javafx.scene.shape.Polygon;
 
 public class Frigate {
     private Polygon frigate;
-
     public Frigate() {
         frigate = new Polygon(10.0, 0.0,
                 20.0, 10.0,

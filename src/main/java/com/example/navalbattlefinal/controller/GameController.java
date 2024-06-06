@@ -202,29 +202,9 @@ public class GameController {
                 }
             });
         }
-        /*
-        VBox shipsBox = new VBox(10);
-        shipsBox.setLayoutX(700);
-        shipsBox.setLayoutY(200);
-
-        for (int size : SHIP_SIZES) {
-            Rectangle shipRect = new Rectangle(size * CELL_SIZE, CELL_SIZE);
-            shipRect.setFill(Color.GRAY);
-            shipsBox.getChildren().add(shipRect);
-
-            makeDraggable(shipRect);
-        }
-        anchorPaneP.getChildren().add(shipsBox);
-
- */
-
-
     } catch (Exception e) {
         e.printStackTrace();
-    } /*catch (Exception e) {
-        System.err.println("Error Initialize: " + e.getMessage());
     }
-    */
     }
 
     private void handleKeyPressed(KeyEvent event) {
@@ -436,29 +416,29 @@ public class GameController {
             int shipSize = SHIP_SIZES[currentShipIndex];
             Node node = event.getPickResult().getIntersectedNode();
             if (node != null && GridPane.getColumnIndex(node) != null && GridPane.getRowIndex(node) != null) {
-                currentCol = GridPane.getColumnIndex(node);
-                currentRow = GridPane.getRowIndex(node);
-                if (currentCol != previousCol || currentRow != previousRow) {
-                    previousCol = currentCol;
-                    previousRow = currentRow;
+                int col = GridPane.getColumnIndex(node);
+                int row = GridPane.getRowIndex(node);
 
-                    // Verificar si la colocación del barco está dentro de los límites del GridPane
-                    if ((isHorizontal && currentCol >= 1 && currentCol + shipSize <= 11 && currentRow >= 1 && currentRow <= 11) ||
-                            (!isHorizontal && currentRow >= 1 && currentRow + shipSize <= 11 && currentCol >= 1 && currentCol <= 11)) {
+                // Verificar si la posición del barco está dentro de los límites del GridPane
+                if (isHorizontal && col + shipSize <= 11 && row >= 1 && row <= 11) {
+                    currentCol = col;
+                    currentRow = row;
+                } else if (!isHorizontal && row + shipSize <= 11 && col >= 1 && col <= 11) {
+                    currentCol = col;
+                    currentRow = row;
+                }
 
-                        // Colocar el barco en la posición actual
-                        if (isHorizontal) {
-                            GridPane.setColumnIndex(ship, currentCol);
-                            GridPane.setRowIndex(ship, currentRow);
-                        } else {
-                            GridPane.setColumnIndex(ship, currentCol);
-                            GridPane.setRowIndex(ship, currentRow);
-                        }
-                    }
+                // Colocar el barco en la posición actual
+                if (isHorizontal) {
+                    GridPane.setColumnIndex(ship, currentCol);
+                    GridPane.setRowIndex(ship, currentRow);
+                } else {
+                    GridPane.setColumnIndex(ship, currentCol);
+                    GridPane.setRowIndex(ship, currentRow);
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error handleMouseMoved: " + e.getMessage());
+            System.err.println("");
         }
     }
 

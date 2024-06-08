@@ -4,23 +4,27 @@ import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
+import javafx.scene.control.Alert;
+import javafx.stage.Stage;
+
+/**
+ * Utility class to display alert messages.
+ */
 public class AlertBox {
-    public void showMessage(String title, String header, String content){
+    /**
+     * Shows a message in an alert box with customizable width and height.
+     * @param title The title of the alert box.
+     * @param header The header text of the alert box.
+     * @param content The content text of the alert box.
+     */
+    public void showMessage(String title, String header, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);
         Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
-        alertStage.setWidth(1000); // Ajustar el ancho deseado
-        alertStage.setHeight(1000); // Ajustar la altura deseada
+        alertStage.setWidth(900);
+        alertStage.setHeight(800);
         alert.showAndWait();
     }
-    public void showMessageG(String title, String header, String content){
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(header);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
-
 }

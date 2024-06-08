@@ -5,40 +5,58 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Represents a random shooter for generating random shots on a grid.
+ */
 public class RandomShooter {
-    private List<int[]> remainingPositions;
-    private List<int[]> shotsTaken;
-    private Random random;
+    private List<int[]> remainingPositions; // List of remaining positions to shoot
+    private List<int[]> shotsTaken; // List of shots already taken
+    private Random random; // Random number generator
 
+    /**
+     * Constructs a new RandomShooter object.
+     * @param rows The number of rows in the grid.
+     * @param cols The number of columns in the grid.
+     */
     public RandomShooter(int rows, int cols) {
         remainingPositions = new ArrayList<>();
         shotsTaken = new ArrayList<>();
         random = new Random();
 
-        // Llenar la lista con todas las posiciones posibles
+        // Fill the list with all possible positions
         for (int row = 0; row <= rows; row++) {
             for (int col = 0; col <= cols; col++) {
                 remainingPositions.add(new int[]{row, col});
             }
         }
-        // Barajar aleatoriamente la lista
+
+        // Shuffle the list randomly
         Collections.shuffle(remainingPositions);
     }
+
+    /**
+     * Generates a random shot position and removes it from the list of remaining positions.
+     * @return The random shot position as an array of integers [row, col].
+     */
     public int[] shoot() {
-        // Verificar si quedan posiciones disponibles
+        // Check if there are any remaining positions
         if (remainingPositions.isEmpty()) {
-            return null; // No hay más posiciones disponibles
+            return null; // No more positions available
         }
 
-        // Obtener la primera posición de la lista barajada
+        // Get the first position from the shuffled list
         int[] position = remainingPositions.remove(0);
 
-        // Registrar la posición disparada
+        // Record the shot position
         shotsTaken.add(position);
 
         return position;
     }
 
+    /**
+     * Gets the list of shots taken.
+     * @return The list of shots taken.
+     */
     public List<int[]> getShotsTaken() {
         return shotsTaken;
     }

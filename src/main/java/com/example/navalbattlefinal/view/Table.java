@@ -1,13 +1,23 @@
 package com.example.navalbattlefinal.view;
 
+/**
+ * Represents the game board.
+ */
 public class Table {
-    private String [][] table;
+    /** Two-dimensional array to represent the table. */
+    private String[][] table;
 
-    public  Table()
-    {
-    initializableTable();
+    /**
+     * Constructs a new Table object.
+     */
+    public Table() {
+        initializeTable();
     }
-    private void initializableTable(){
+
+    /**
+     * Initializes the game board with default values.
+     */
+    private void initializeTable() {
         this.table = new String[11][11];
         for (int i = 0; i < 11; i++) {
             for (int j = 0; j < 11; j++) {
@@ -18,21 +28,24 @@ public class Table {
         }
     }
 
+    /**
+     * Retrieves the table.
+     * @return The two-dimensional array representing the table.
+     */
     public String[][] getTable() {
         return table;
     }
 
+    /**
+     * Sets the table to its initial state.
+     */
     public void setTable() {
-        this.table = new String[11][11];
-        for (int i = 0; i < 11; i++) {
-            for (int j = 0; j < 11; j++) {
-                table[0][j] = String.valueOf(j);
-                table[i][0] = String.valueOf(i);
-                this.table[i][j] = ".";
-            }
-        }
+        initializeTable();
     }
 
+    /**
+     * Prints the player's game board.
+     */
     public void printPlayerBoard() {
         for (int i = 0; i < 11; i++) {
             for (int j = 0; j < 11; j++) {
@@ -41,5 +54,5 @@ public class Table {
             System.out.println();
         }
     }
-
 }
+

@@ -6,9 +6,6 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-import javafx.application.Application;
-import javafx.stage.Stage;
-import java.io.IOException;
 
 /**
  * The Main class for launching the application.

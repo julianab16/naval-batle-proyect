@@ -1,6 +1,5 @@
 package com.example.navalbattlefinal.controller;
-import com.example.navalbattlefinal.model.AircraftCarrier;
-import com.example.navalbattlefinal.model.RandomShooter;
+import com.example.navalbattlefinal.model.*;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 
@@ -15,18 +14,23 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.*;
+import java.util.List;
+
 
 /** Authors:
  Juliana Melissa Bolaños Araujo-2372224
@@ -39,6 +43,8 @@ import java.util.*;
  */
 
 public class GameController implements Serializable {
+    @FXML
+    private AnchorPane anchorPane;
     /**
      * AnchorPane for the player's board.
      */
@@ -134,6 +140,56 @@ public class GameController implements Serializable {
      * Set to store already shot positions.
      */
     private Set<String> alreadyShotPositions = new HashSet<>();
+    /**
+     * Represents a Frigate ship in the game.
+     */
+    Frigate frigate = new Frigate();
+
+    /**
+     * Represents a Submarine ship in the game.
+     */
+    Submarine submarine = new Submarine();
+
+    /**
+     * Represents a Destroyer ship in the game.
+     */
+    Destroyer destroyer = new Destroyer();
+
+    /**
+     * Represents an Aircraft Carrier ship in the game.
+     */
+    AircraftCarrier aircraftCarrier = new AircraftCarrier();
+
+    /**
+     * VBox container for organizing UI components in a vertical column.
+     */
+    VBox vBox = new VBox();
+
+    /**
+     * Main VBox container for the primary layout of the user interface.
+     */
+    VBox mainVbox = new VBox();
+
+    /**
+     * TextField for user input, potentially for the Frigate details.
+     */
+    TextField textField = new TextField();
+
+    /**
+     * TextField for user input, potentially for the Submarine details.
+     */
+    TextField textField2 = new TextField();
+
+    /**
+     * TextField for user input, potentially for the Destroyer details.
+     */
+    TextField textField3 = new TextField();
+
+    /**
+     * TextField for user input, potentially for the Aircraft Carrier details.
+     */
+    TextField textField4 = new TextField();
+
 
     private static final Random random = new Random();
     /**
@@ -141,6 +197,7 @@ public class GameController implements Serializable {
      */
     public void inicialize(){
         this.shotsTaken = new ArrayList<>();
+        showBoats(true);
         try {
             /**Hide player 2's board initially*/
             anchorpaneTwo.setVisible(false);
@@ -188,7 +245,7 @@ public class GameController implements Serializable {
                 }
             }
             anchorpaneOne.getChildren().add(gridPane);
-            AircraftCarrier aircraftCarrier = new AircraftCarrier();
+
             for (int row = 0; row < rows; row++) {
                 for (int col = 0; col < columns; col++) {
                     Pane panelTwo = new Pane();
@@ -407,35 +464,39 @@ public class GameController implements Serializable {
      * If the 'R' key has been pressed, it will rotate the ship before updating its position.
      **/
     private void handleMouseMoved(MouseEvent event) {
-        try {
-            /** Handle ship rotation if the 'R' key was pressed
-             **/
-            if (rotateKeyPressed) {
-                rotateShip();
-                rotateKeyPressed = false;
-            }
-            int shipSize = SHIP_SIZES[currentShipIndex];
-            Node node = event.getPickResult().getIntersectedNode();
-            if (node != null && GridPane.getColumnIndex(node) != null && GridPane.getRowIndex(node) != null) {
-                int col = GridPane.getColumnIndex(node);
-                int row = GridPane.getRowIndex(node);
-                if (isHorizontal && col + shipSize <= 11 && row >= 1 && row <= 11) {
-                    currentCol = col;
-                    currentRow = row;
-                } else if (!isHorizontal && row + shipSize <= 11 && col >= 1 && col <= 11) {
-                    currentCol = col;
-                    currentRow = row;
+        int r = (int) event.getX()/CELL_SIZE;
+        int c = (int) event.getY()/CELL_SIZE;
+        if (r > 0 && c > 0) {
+            try {
+                /** Handle ship rotation if the 'R' key was pressed
+                 **/
+                if (rotateKeyPressed) {
+                    rotateShip();
+                    rotateKeyPressed = false;
                 }
-                if (isHorizontal) {
-                    GridPane.setColumnIndex(ship, currentCol);
-                    GridPane.setRowIndex(ship, currentRow);
-                } else {
-                    GridPane.setColumnIndex(ship, currentCol);
-                    GridPane.setRowIndex(ship, currentRow);
+                int shipSize = SHIP_SIZES[currentShipIndex];
+                Node node = event.getPickResult().getIntersectedNode();
+                if (node != null && GridPane.getColumnIndex(node) != null && GridPane.getRowIndex(node) != null) {
+                    int col = GridPane.getColumnIndex(node);
+                    int row = GridPane.getRowIndex(node);
+                    if (isHorizontal && col + shipSize <= 11 && row >= 1 && row <= 11) {
+                        currentCol = col;
+                        currentRow = row;
+                    } else if (!isHorizontal && row + shipSize <= 11 && col >= 1 && col <= 11) {
+                        currentCol = col;
+                        currentRow = row;
+                    }
+                    if (isHorizontal) {
+                        GridPane.setColumnIndex(ship, currentCol);
+                        GridPane.setRowIndex(ship, currentRow);
+                    } else {
+                        GridPane.setColumnIndex(ship, currentCol);
+                        GridPane.setRowIndex(ship, currentRow);
+                    }
                 }
+            } catch (Exception e) {
+                System.err.println("");
             }
-        } catch (Exception e) {
-            System.err.println("");
         }
     }
     /**
@@ -448,6 +509,7 @@ public class GameController implements Serializable {
     @FXML
     void buttonPlayGame(ActionEvent event) {
         try {
+            showBoats(false);
             tableTwo.setTable();
             gridPaneTwo.setVisible(true);
             anchorpaneTwo.setVisible(true);
@@ -814,6 +876,60 @@ public class GameController implements Serializable {
             }
         }catch (Exception e) {
             System.err.println("Error placeShip: " + e.getMessage());
+        }
+    }
+    /**
+     * Displays or hides the ship information on the user interface.
+     *
+     * @param show a boolean indicating whether to show (true) or hide (false) the ship information.
+     */
+    public void showBoats(boolean show){
+        if (show) {
+            vBox.getChildren().add(frigate.getFrigate());
+            vBox.getChildren().add(submarine.getSubmarine());
+            vBox.getChildren().add(destroyer.getDestroyer());
+            vBox.getChildren().add(aircraftCarrier.getAircraftCarrier());
+
+            mainVbox.getChildren().add(vBox);
+            mainVbox.setLayoutY(200);
+            mainVbox.setLayoutX(730);
+            anchorPane.getChildren().add(mainVbox);
+
+            textField.setText("4 Fragatas");
+            anchorPane.getChildren().add(textField);
+            textField.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, null)));
+            textField.setLayoutX(820);
+            textField.setLayoutY(190);
+            textField.setStyle("-fx-font-size: 25px; -fx-font-family: 'Cambria Bold';-fx-font-weight: 'bolder';");
+
+            textField2.setText("2 Submarinos");
+            anchorPane.getChildren().add(textField2);
+            textField2.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, null)));
+            textField2.setLayoutX(820);
+            textField2.setLayoutY(240);
+            textField2.setStyle("-fx-font-size: 25px; -fx-font-family: 'Cambria Bold';-fx-font-weight: 'bolder';");
+
+            textField3.setText("3 Destructores");
+            anchorPane.getChildren().add(textField3);
+            textField3.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, null)));
+            textField3.setLayoutX(820);
+            textField3.setLayoutY(290);
+            textField3.setStyle("-fx-font-size: 25px; -fx-font-family: 'Cambria Bold';-fx-font-weight: 'bolder';");
+
+            textField4.setText("1 Portaviones");
+            anchorPane.getChildren().add(textField4);
+            textField4.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, null)));
+            textField4.setLayoutX(820);
+            textField4.setLayoutY(340);
+            textField4.setStyle("-fx-font-size: 25px; -fx-font-family: 'Cambria Bold';-fx-font-weight: 'bolder';");
+
+        }
+        else {
+            mainVbox.setVisible(false);
+            textField.setVisible(false);
+            textField2.setVisible(false);
+            textField3.setVisible(false);
+            textField4.setVisible(false);
         }
     }
     public void serialize() throws IOException {

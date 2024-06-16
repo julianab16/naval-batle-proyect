@@ -27,6 +27,10 @@ public class Destroyer {
 /**
  * Retrieves the polygon representing the destroyer boat.
  */
+
+public Polygon getDestroyer() {
+    return destroyer;
+}
 }
 
 
